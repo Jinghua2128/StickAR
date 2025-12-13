@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "56412676389",
+    "firebase_url": "https://stickar-36faf-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "stickar-36faf",
+    "storage_bucket": "stickar-36faf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56412676389:android:bf82f28d78f78ee0e8facc",
+        "android_client_info": {
+          "package_name": "com.company.StickAR"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBflRebXuZaAjTUKy05QyeH1dfBezKNs4Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
