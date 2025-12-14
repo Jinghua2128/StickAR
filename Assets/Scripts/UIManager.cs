@@ -24,9 +24,9 @@ public class UIManager : MonoBehaviour
     public GameObject signUpConfirmShowIcon;
     public GameObject signUpConfirmHideIcon;
 
-    [Header("Message UI (optional)")]
-    public GameObject messagePanel;
-    public TextMeshProUGUI messageText;
+    [Header("Error UI (optional)")]
+    public GameObject errorPanel;
+    public TextMeshProUGUI errorText;
 
     private void Awake()
     {
@@ -98,18 +98,18 @@ public class UIManager : MonoBehaviour
 
     // ───────────── OPTIONAL MESSAGE POPUP ─────────────
 
-    public void ShowMessage(string msg)
+    public void ShowError(string msg)
     {
-        if (messageText != null)
-            messageText.text = msg;
+        if (errorText != null)
+            errorText.text = msg;
 
-        if (messagePanel != null)
-            messagePanel.SetActive(true);
+        if (errorPanel != null)
+            errorPanel.SetActive(true);
     }
 
-    public void HideMessage()
+    public void HideError()
     {
-        if (messagePanel != null)
-            messagePanel.SetActive(false);
+        if (errorPanel != null)
+            errorPanel.SetActive(false);
     }
 }

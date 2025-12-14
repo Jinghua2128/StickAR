@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StickAR - Web Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-blue-400">StickAR Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userEmail" class="text-sm text-gray-400"></span>
+                    <button onclick="signOut()" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium" id="signOutBtn">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-md w-full bg-gray-800 rounded-lg shadow-xl p-8">
+            <h2 class="text-3xl font-bold text-center mb-8 text-blue-400">Sign In to StickAR</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com"
+                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••"
+                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div id="loginError" class="text-red-400 text-sm hidden"></div>
+                <button onclick="signIn()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="text-gray-400 text-sm mb-1">Total Players</div>
+                <div class="text-3xl font-bold text-blue-400" id="totalPlayers">0</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="text-gray-400 text-sm mb-1">Total StickARs</div>
+                <div class="text-3xl font-bold text-green-400" id="totalStickARs">0</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="text-gray-400 text-sm mb-1">Active Rooms</div>
+                <div class="text-3xl font-bold text-purple-400" id="activeRooms">2</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="text-gray-400 text-sm mb-1">Total Likes</div>
+                <div class="text-3xl font-bold text-pink-400" id="totalLikes">0</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-700 mb-6">
+            <nav class="flex space-x-8">
+                <button onclick="switchTab('players')" id="playersTab" 
+                    class="tab-btn py-4 px-1 border-b-2 border-blue-500 font-medium text-blue-400">
+                    Players
+                </button>
+                <button onclick="switchTab('rooms')" id="roomsTab" 
+                    class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-gray-400 hover:text-gray-300">
+                    Rooms & StickARs
+                </button>
+            </nav>
+        </div>
+
+        <!-- Players Tab -->
+        <div id="playersContent" class="tab-content">
+            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-900">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Player</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">AR Tokens</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Selected Skin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody" class="divide-y divide-gray-700">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">Loading players...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rooms Tab -->
+        <div id="roomsContent" class="tab-content hidden">
+            <div class="space-y-6">
+                <!-- Library Room -->
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4">📚 Library</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 1</h4>
+                            <div id="library_canvas_1" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 2</h4>
+                            <div id="library_canvas_2" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 3</h4>
+                            <div id="library_canvas_3" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 4</h4>
+                            <div id="library_canvas_4" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grass Patch Room -->
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                    <h3 class="text-xl font-bold text-green-400 mb-4">🌿 Grass Patch</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 1</h4>
+                            <div id="grassPatch_canvas_1" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 2</h4>
+                            <div id="grassPatch_canvas_2" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 3</h4>
+                            <div id="grassPatch_canvas_3" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-300 mb-3">Canvas 4</h4>
+                            <div id="grassPatch_canvas_4" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-sm text-gray-500">No StickARs yet</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfwu2FcWWz0wvFkqpjLH3Yxsuu7N5wkGs",
+            authDomain: "stickar-36faf.firebaseapp.com",
+            databaseURL: "https://stickar-36faf-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "stickar-36faf",
+            storageBucket: "stickar-36faf.firebasestorage.app",
+            messagingSenderId: "56412676389",
+            appId: "1:56412676389:web:460928af7a345f4ae8facc",
+            measurementId: "G-EJR99NS96K"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Auth state listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('signOutBtn').classList.remove('hidden');
+                loadDashboard();
+            } else {
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('dashboardSection').classList.add('hidden');
+                document.getElementById('signOutBtn').classList.add('hidden');
+            }
+        });
+
+        // Sign In
+        function signIn() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    errorDiv.textContent = error.message;
+                    errorDiv.classList.remove('hidden');
+                });
+        }
+
+        // Sign Out
+        function signOut() {
+            auth.signOut();
+        }
+
+        // Switch Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-400');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            if (tab === 'players') {
+                document.getElementById('playersTab').classList.add('border-blue-500', 'text-blue-400');
+                document.getElementById('playersContent').classList.remove('hidden');
+            } else {
+                document.getElementById('roomsTab').classList.add('border-blue-500', 'text-blue-400');
+                document.getElementById('roomsContent').classList.remove('hidden');
+            }
+        }
+
+        // Load Dashboard Data
+        function loadDashboard() {
+            loadPlayers();
+            loadRooms();
+        }
+
+        // Load Players
+        function loadPlayers() {
+            db.ref('players').on('value', snapshot => {
+                const players = snapshot.val() || {};
+                const playerCount = Object.keys(players).length;
+                document.getElementById('totalPlayers').textContent = playerCount;
+
+                const tbody = document.getElementById('playersTableBody');
+                tbody.innerHTML = '';
+
+                if (playerCount === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No players yet</td></tr>';
+                    return;
+                }
+
+                Object.entries(players).forEach(([uid, player]) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-700';
+                    row.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 rounded-full bg-${getSkinColor(player.selectedSkin)}-500 flex items-center justify-center text-white font-bold">
+                                    ${player.playerName.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="font-medium">${player.playerName}</div>
+                                    <div class="text-xs text-gray-400">ID: ${player.id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-400">${player.email}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded text-sm font-medium">
+                                Level ${player.level}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-yellow-400 font-medium">🪙 ${player.AR_tokens}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 bg-${getSkinColor(player.selectedSkin)}-900 text-${getSkinColor(player.selectedSkin)}-300 rounded-full text-sm">
+                                ${player.selectedSkin}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        }
+
+        // Load Rooms and StickARs
+        function loadRooms() {
+            const rooms = ['Library', 'Grass Patch'];
+            let totalStickARs = 0;
+            let totalLikes = 0;
+
+            rooms.forEach(roomName => {
+                const roomKey = roomName.replace(' ', '');
+                
+                for (let i = 1; i <= 4; i++) {
+                    const canvasId = `canvas_${i}`;
+                    const elementId = `${roomKey.charAt(0).toLowerCase() + roomKey.slice(1)}_${canvasId}`;
+                    
+                    db.ref(`rooms/${roomName}/canvases/${canvasId}/stickARs`).on('value', snapshot => {
+                        const stickARs = snapshot.val() || {};
+                        const container = document.getElementById(elementId);
+                        
+                        if (!container) return;
+                        
+                        container.innerHTML = '';
+                        
+                        const stickARArray = Object.values(stickARs);
+                        totalStickARs += stickARArray.length;
+                        
+                        if (stickARArray.length === 0) {
+                            container.innerHTML = '<div class="text-sm text-gray-500">No StickARs yet</div>';
+                        } else {
+                            stickARArray.forEach(stickar => {
+                                totalLikes += stickar.likes || 0;
+                                
+                                const card = document.createElement('div');
+                                card.className = 'bg-gray-800 rounded p-3 border border-gray-700';
+                                card.innerHTML = `
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="h-6 w-6 rounded-full bg-${getSkinColor(stickar.authorSkin)}-500 flex items-center justify-center text-white text-xs">
+                                                ${stickar.authorName.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span class="text-xs text-gray-400">${stickar.authorName}</span>
+                                        </div>
+                                        <span class="text-xs text-gray-500">${getTimeAgo(stickar.timestamp)}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-200 mb-2">${stickar.content}</p>
+                                    <div class="flex items-center justify-between text-xs text-gray-400">
+                                        <span>Grid: (${stickar.gridX}, ${stickar.gridY})</span>
+                                        <span class="text-pink-400">❤ ${stickar.likes || 0}</span>
+                                    </div>
+                                `;
+                                container.appendChild(card);
+                            });
+                        }
+                        
+                        document.getElementById('totalStickARs').textContent = totalStickARs;
+                        document.getElementById('totalLikes').textContent = totalLikes;
+                    });
+                }
+            });
+        }
+
+        // Helper: Get skin color for Tailwind
+        function getSkinColor(skinName) {
+            const colors = {
+                'Blue': 'blue',
+                'Yellow': 'yellow',
+                'Pink': 'pink',
+                'Red': 'red',
+                'Green': 'green',
+                'Purple': 'purple',
+                'Orange': 'orange',
+                'Black': 'gray',
+                'White': 'gray'
+            };
+            return colors[skinName] || 'gray';
+        }
+
+        // Helper: Get time ago
+        function getTimeAgo(timestamp) {
+            const now = Date.now() / 1000;
+            const diff = now - timestamp;
+            
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+            
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleDateString();
+        }
+
+        // Allow Enter key to sign in
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') signIn();
+        });
+    </script>
+</body>
+</html>
