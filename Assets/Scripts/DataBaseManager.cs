@@ -58,6 +58,7 @@ public class DataBaseManager : MonoBehaviour
     public TMP_InputField email;
     public TMP_InputField password;
     public TMP_Text userStats;
+    public GameObject panel;
     public TMP_Text errorText;
     public TMP_Text playerNameText;
 
