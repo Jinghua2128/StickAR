@@ -180,14 +180,8 @@ public class RoomManager : MonoBehaviour
             canvas.roomName = roomName;
         }
 
-        // Switch cameras
-        if (arCamera != null) arCamera.enabled = false;
-        if (roomCamera != null) 
-        {
-            roomCamera.enabled = true;
-            // Position room camera inside the room
-            roomCamera.transform.position = room.transform.position + new Vector3(0, 1.6f, 0);
-        }
+        // DON'T switch cameras - just keep using Main Camera
+        // The room will be positioned where the marker was tracked
 
         // Show room UI and exit button
         if (roomUIManager != null) roomUIManager.ShowRoomPage();
@@ -209,9 +203,7 @@ public class RoomManager : MonoBehaviour
             spawnedRooms[currentInsideRoom].SetActive(false);
         }
 
-        // Switch back to AR camera
-        if (arCamera != null) arCamera.enabled = true;
-        if (roomCamera != null) roomCamera.enabled = false;
+        // DON'T switch cameras - already using Main Camera
 
         // Hide room UI and exit button
         if (roomUIManager != null) roomUIManager.HideRoomPage();
@@ -222,7 +214,6 @@ public class RoomManager : MonoBehaviour
 
         Debug.Log("Exited room");
     }
-
     public bool IsInsideRoom()
     {
         return isInsideRoom;

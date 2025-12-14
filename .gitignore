@@ -73,7 +73,12 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-D:\NP\Unity Project\StickAR\Assets\Firebase\Plugins\x86_64\FirebaseCppApp-13_4_0.bundle
-D:\NP\Unity Project\StickAR\Assets\Firebase\Plugins\x86_64\FirebaseCppApp-13_4_0.bundle.meta
-D:\NP\Unity Project\StickAR\Assets\Firebase\Plugins\x86_64\FirebaseCppApp-13_4_0.so
-D:\NP\Unity Project\StickAR\Assets\Firebase\Plugins\x86_64\FirebaseCppApp-13_4_0.so.meta
+
+# Firebase Plugins - Too large for GitHub
+Assets/Firebase/Plugins/x86_64/FirebaseCppApp*.so
+Assets/Firebase/Plugins/x86_64/FirebaseCppApp*.bundle
+Assets/Firebase/Plugins/x86_64/*.so
+Assets/Firebase/Plugins/x86_64/*.bundle
+
+# All Firebase native libraries
+Assets/Firebase/Plugins/**/FirebaseCppApp*
