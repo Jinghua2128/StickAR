@@ -3,7 +3,7 @@
 ## Overview
 StickAR is a cross-platform social experience connecting users through a virtual bulletin board. Whether via the immersive Mobile AR app or the accessible Web Dashboard, users can place customized Sticky Notes, leave personal messages, and discover hidden digital content in physical locations.
 
-We aim to give underutilized areas around schools and communities a new digital purpose.
+We aim to give underutilised areas around schools and communities a new digital purpose.
 
 ---
 
@@ -82,4 +82,4 @@ The full Augmented Reality experience available on Android.
 *   **Icons:** [Lucide](https://lucide.dev/) & [Figma Game Icons](https://www.figma.com/design/6SAPrziKbA4BK7oN2RH7d8/Ultimate-Discord-Library--Community-)
 *   **Assets:** [Digital Sticky Notes Template](https://www.figma.com/design/e80CbPR3Tk5S1FawAKlRcp/Digital-Sticky-Notes--Community-)
 *   **Website** [StickAR](https://stickar-36faf.web.app/)
-*   **Developers:** Lim Guang Xuan & Ng Kiang Hwee
+*   **Developers:** Liu Guang Xuan & Ng Kiang Hwee
