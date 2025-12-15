@@ -77,7 +77,7 @@ The full Augmented Reality experience available on Android.
 
 ---
 
-## 🏆 References and Credits
+## References and Credits
 *   **Database:** [Google Firebase](https://firebase.google.com/)
 *   **Icons:** [Lucide](https://lucide.dev/) & [Figma Game Icons](https://www.figma.com/design/6SAPrziKbA4BK7oN2RH7d8/Ultimate-Discord-Library--Community-)
 *   **Assets:** [Digital Sticky Notes Template](https://www.figma.com/design/e80CbPR3Tk5S1FawAKlRcp/Digital-Sticky-Notes--Community-)
