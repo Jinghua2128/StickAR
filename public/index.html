@@ -1,39 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StickAR Portal - Login/Signup</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>StickAR Web</title>
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Lucide Icons -->
+        <script src="https://unpkg.com/lucide@latest"></script>
+        
+        <!-- Firebase SDKs (Compat versions for vanilla JS) -->
+        <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-    <div class="w-full max-w-sm bg-white p-6 rounded-lg shadow-xl">
-        <h1 class="text-3xl font-bold text-center mb-6 text-indigo-700">StickAR Portal</h1>
-        <h2 id="form-title" class="text-xl font-semibold mb-4 text-gray-800">Login</h2>
-
-        <form id="auth-form" class="space-y-4">
-            <input type="email" id="email" placeholder="Email" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            
-            <input type="password" id="password" placeholder="Password" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            
-            <button type="submit" id="auth-button"
-                    class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition duration-200">
-                Log In
-            </button>
-        </form>
-
-        <p id="error-message" class="text-red-500 text-center mt-3 hidden">Error: Something went wrong.</p>
-
-        <button id="toggle-auth-mode"
-                class="w-full mt-4 text-sm text-indigo-600 hover:text-indigo-800 transition duration-200">
-            Need an account? Switch to Signup
-        </button>
-    </div>
-
-    <script src="js/firebase.js" type="module"></script>
-    <script src="js/auth.js" type="module"></script>
-</body>
+        <!-- Custom Styles -->
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body class="bg-gray-100 text-gray-900 antialiased overscroll-none">
+        <div id="root" class="flex justify-center min-h-screen"></div>
+        
+        <!-- App Logic -->
+        <script src="js/app.js"></script>
+    </body>
 </html>
