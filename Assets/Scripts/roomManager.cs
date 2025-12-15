@@ -29,7 +29,6 @@ public class RoomManager : MonoBehaviour
 
     [Header("Cameras")]
     [SerializeField] private Camera arCamera;               // Main AR camera
-    [SerializeField] private Camera roomCamera;             // Camera for inside room view
 
     private Dictionary<string, GameObject> spawnedRooms = new Dictionary<string, GameObject>();
     private Dictionary<string, Vector3> trackedImagePositions = new Dictionary<string, Vector3>();
@@ -49,9 +48,7 @@ public class RoomManager : MonoBehaviour
         // Setup all rooms
         SetupRooms();
 
-        // Initially show AR camera, hide room camera
         if (arCamera != null) arCamera.enabled = true;
-        if (roomCamera != null) roomCamera.enabled = false;
         
         // Hide popup and exit button initially
         if (popup != null) popup.SetActive(false);
@@ -180,10 +177,6 @@ public class RoomManager : MonoBehaviour
             canvas.roomName = roomName;
         }
 
-        // DON'T switch cameras - just keep using Main Camera
-        // The room will be positioned where the marker was tracked
-
-        // Show room UI and exit button
         if (roomUIManager != null) roomUIManager.ShowRoomPage();
         if (exitButton != null) exitButton.SetActive(true);
 
@@ -203,9 +196,6 @@ public class RoomManager : MonoBehaviour
             spawnedRooms[currentInsideRoom].SetActive(false);
         }
 
-        // DON'T switch cameras - already using Main Camera
-
-        // Hide room UI and exit button
         if (roomUIManager != null) roomUIManager.HideRoomPage();
         if (exitButton != null) exitButton.SetActive(false);
 

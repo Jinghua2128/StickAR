@@ -16,9 +16,8 @@ public class RoomCanvasController : MonoBehaviour
     public float gridSpacing = 0.33f; // Distance between grid positions (1.0 / 3)
 
     [Header("Raycast Detection")]
-    public float raycastDistance = 5f;
+    public float raycastDistance = 100f;
     public LayerMask canvasLayer;
-
     private DatabaseReference db;
     private Dictionary<string, GameObject> spawnedStickARs = new Dictionary<string, GameObject>();
     private Camera playerCamera;
@@ -32,6 +31,15 @@ public class RoomCanvasController : MonoBehaviour
         db = FirebaseDatabase.DefaultInstance.RootReference;
         playerCamera = Camera.main;
 
+        if (playerCamera == null)
+        {
+            Debug.LogError("RoomCanvasController: Camera.main is NULL!");
+        }
+        else
+        {
+            Debug.Log($"RoomCanvasController on {gameObject.name}: Camera found = {playerCamera.name}");
+        }
+
         // Calculate grid positions (centered on canvas)
         CalculateGridPositions();
 
@@ -44,17 +52,24 @@ public class RoomCanvasController : MonoBehaviour
 
     void CalculateGridPositions()
     {
-        // Create 3x3 grid centered on canvas
-        Vector3 startPos = transform.position - new Vector3(gridSpacing, gridSpacing, 0);
+        float startX = -gridSpacing;
+        float startY = -gridSpacing;
 
         for (int x = 0; x < 3; x++)
         {
             for (int y = 0; y < 3; y++)
             {
-                gridPositions[x, y] = startPos + new Vector3(x * gridSpacing, y * gridSpacing, 0);
+                gridPositions[x, y] = new Vector3(
+                    startX + (x * gridSpacing),
+                    startY + (y * gridSpacing),
+                    0.01f
+                );
             }
         }
+
+        Debug.Log($"Canvas {canvasId}: Local grid calculated");
     }
+
 
     void Update()
     {
@@ -62,30 +77,26 @@ public class RoomCanvasController : MonoBehaviour
         CheckIfLookingAtCanvas();
     }
 
-    void CheckIfLookingAtCanvas()
+void CheckIfLookingAtCanvas()
+{
+    if (playerCamera == null) return;
+
+    Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+    RaycastHit hit;
+
+    Debug.DrawRay(ray.origin, ray.direction * raycastDistance, Color.red, 0.1f);
+
+    if (Physics.Raycast(ray, out hit, raycastDistance, canvasLayer))
     {
-        if (playerCamera == null) return;
-
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, raycastDistance, canvasLayer))
+        Debug.Log($"Raycast hit: {hit.collider.gameObject.name}");
+        
+        if (hit.collider.gameObject == this.gameObject)
         {
-            if (hit.collider.gameObject == this.gameObject)
+            if (!isLookingAtCanvas)
             {
-                if (!isLookingAtCanvas)
-                {
-                    isLookingAtCanvas = true;
-                    OnStartLookingAtCanvas();
-                }
-            }
-            else
-            {
-                if (isLookingAtCanvas)
-                {
-                    isLookingAtCanvas = false;
-                    OnStopLookingAtCanvas();
-                }
+                isLookingAtCanvas = true;
+                Debug.Log($"Started looking at {gameObject.name}");
+                OnStartLookingAtCanvas();
             }
         }
         else
@@ -97,6 +108,15 @@ public class RoomCanvasController : MonoBehaviour
             }
         }
     }
+    else
+    {
+        if (isLookingAtCanvas)
+        {
+            isLookingAtCanvas = false;
+            OnStopLookingAtCanvas();
+        }
+    }
+}
 
     void OnStartLookingAtCanvas()
     {
@@ -165,6 +185,20 @@ public class RoomCanvasController : MonoBehaviour
 
     void SpawnStickAR(StickAR stickAR)
     {
+        if (gridParent == null)
+        {
+            Debug.LogError($"❌ GridParent is NULL on {gameObject.name}! StickARs will spawn incorrectly.");
+            Debug.LogError("Fix: Assign GridParent in Inspector for each canvas!");
+            return;
+        }
+        
+        Debug.Log($"GridParent assigned: {gridParent.name}, Canvas: {gameObject.name}");
+        
+        if (spawnedStickARs.ContainsKey(stickAR.id))
+        {
+            return;
+        }
+
         if (spawnedStickARs.ContainsKey(stickAR.id))
         {
             return; // Already spawned
@@ -180,8 +214,14 @@ public class RoomCanvasController : MonoBehaviour
         // Get grid position
         Vector3 position = gridPositions[stickAR.gridX, stickAR.gridY];
 
-        // Spawn StickAR prefab
-        GameObject stickARObj = Instantiate(stickARPrefab, position, transform.rotation, gridParent);
+        GameObject stickARObj = Instantiate(stickARPrefab, gridParent);
+        stickARObj.transform.localPosition = gridPositions[stickAR.gridX, stickAR.gridY];
+        stickARObj.transform.localRotation = Quaternion.identity;
+        stickARObj.transform.localScale = Vector3.one;
+
+        
+        // Make sure it faces the camera (for world space canvas)
+        stickARObj.transform.localRotation = Quaternion.identity;
         
         // Setup StickAR display
         StickARDisplay display = stickARObj.GetComponent<StickARDisplay>();
@@ -191,6 +231,8 @@ public class RoomCanvasController : MonoBehaviour
         }
 
         spawnedStickARs.Add(stickAR.id, stickARObj);
+        
+        Debug.Log($"Spawned StickAR '{stickAR.content}' at grid ({stickAR.gridX},{stickAR.gridY}) under {gridParent.name}");
     }
 
     public void CreateStickAR(string content, int gridX, int gridY)

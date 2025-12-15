@@ -58,9 +58,16 @@ public class DataBaseManager : MonoBehaviour
     public TMP_InputField email;
     public TMP_InputField password;
     public TMP_Text userStats;
-    public GameObject panel;
     public TMP_Text errorText;
     public TMP_Text playerNameText;
+
+    [Header("Home UI")]
+    public TMP_Text homePlayerNameText;
+    public TMP_Text dateJoinedText;
+
+    [Header("Settings UI")]
+    public TMP_Text settingsPlayerNameText;
+    public TMP_Text settingsEmailText;
 
     [Header("Panel References")]
     public GameObject signUpPanel;
@@ -91,27 +98,37 @@ public class DataBaseManager : MonoBehaviour
     {
         errorText.text = "";
 
+        // Trim whitespace from inputs
+        string userNameInput = userName.text?.Trim() ?? "";
+        string emailInput = email.text?.Trim() ?? "";
+        string passwordInput = password.text?.Trim() ?? "";
+
         // Validate inputs
-        if (string.IsNullOrEmpty(userName.text))
+        if (string.IsNullOrEmpty(userNameInput))
         {
             errorText.text = "Please enter a username!";
+            Debug.LogWarning("Sign up failed: Username is empty");
             return;
         }
 
-        if (string.IsNullOrEmpty(email.text))
+        if (string.IsNullOrEmpty(emailInput))
         {
             errorText.text = "Please enter an email address!";
+            Debug.LogWarning("Sign up failed: Email is empty");
             return;
         }
 
-        if (string.IsNullOrEmpty(password.text))
+        if (string.IsNullOrEmpty(passwordInput))
         {
             errorText.text = "Please enter a password!";
+            Debug.LogWarning("Sign up failed: Password is empty");
             return;
         }
 
+        Debug.Log($"Attempting sign up with email: {emailInput}");
+
         // Create user with email and password
-        var signUpTask = auth.CreateUserWithEmailAndPasswordAsync(email.text, password.text);
+        var signUpTask = auth.CreateUserWithEmailAndPasswordAsync(emailInput, passwordInput);
 
         signUpTask.ContinueWithOnMainThread(task =>
         {
@@ -133,7 +150,7 @@ public class DataBaseManager : MonoBehaviour
                 Debug.Log($"User created successfully: {user.UserId}");
 
                 // Initialize player data for new user
-                InitializeNewPlayer(user.UserId, user.Email, userName.text);
+                InitializeNewPlayer(user.UserId, user.Email, userNameInput);
             }
         });
     }
@@ -142,13 +159,26 @@ public class DataBaseManager : MonoBehaviour
     {
         errorText.text = "";
 
-        if (string.IsNullOrEmpty(email.text) || string.IsNullOrEmpty(password.text))
+        string emailInput = email.text?.Trim() ?? "";
+        string passwordInput = password.text?.Trim() ?? "";
+
+        if (string.IsNullOrEmpty(emailInput))
         {
-            errorText.text = "Please enter email and password!";
+            errorText.text = "Please enter an email address!";
+            Debug.LogWarning("Sign in failed: Email is empty");
             return;
         }
 
-        var signInTask = auth.SignInWithEmailAndPasswordAsync(email.text, password.text);
+        if (string.IsNullOrEmpty(passwordInput))
+        {
+            errorText.text = "Please enter a password!";
+            Debug.LogWarning("Sign in failed: Password is empty");
+            return;
+        }
+
+        Debug.Log($"Attempting sign in with email: {emailInput}");
+
+        var signInTask = auth.SignInWithEmailAndPasswordAsync(emailInput, passwordInput);
 
         signInTask.ContinueWithOnMainThread(task =>
         {
@@ -247,11 +277,13 @@ public class DataBaseManager : MonoBehaviour
         userStats.text = $"Name: {player.playerName}\n" +
                         $"Level: {player.level}\n" +
                         $"ID: {player.id}\n" +
-                        $"Email: {player.email}\n" +
                         $"Experience: {player.experience}\n" +
                         $"Selected Skin: {player.selectedSkin}";
 
-        playerNameText.text = $"{player.playerName}";
+        playerNameText.text = player.playerName;
+        settingsPlayerNameText.text = player.playerName;
+        settingsEmailText.text = player.email;
+        homePlayerNameText.text = player.playerName;
 
         Debug.Log("UI updated with player data.");
     }

@@ -58,9 +58,9 @@ public class RoomUIManager : MonoBehaviour
         for (int i = 0; i < 9; i++)
         {
             int x = i % 3;
-            int y = i / 3;
-            int index = i; // Capture for lambda
-
+            int y = 2 - (i / 3);
+            int index = i;
+            
             gridButtons[i].onClick.AddListener(() => OnGridPositionSelected(x, y, index));
         }
     }
@@ -156,6 +156,7 @@ public class RoomUIManager : MonoBehaviour
         }
 
         // Create the StickAR
+        Debug.Log($"Creating StickAR at ({selectedGridX}, {selectedGridY}) with content: {content}");
         currentCanvas.CreateStickAR(content, selectedGridX, selectedGridY);
 
         // Clear input and hide UI
